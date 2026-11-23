@@ -3,23 +3,25 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>NEON ROGUE</title>
     <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/index.umd.js"></script>
     <style>
-        canvas:focus { outline: none; }
-        html, body { padding: 0; margin: 0; overflow: hidden; height: 100%; background: #000; }
-        #unity-canvas { width: 100%; height: 100%; background: #231F20; }
+        html, body { padding: 0; margin: 0; overflow: hidden; height: 100%; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; font-family: sans-serif; }
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        #status { z-index: 10; font-size: 24px; }
     </style>
 </head>
 <body>
+    <div id="status">ИНИЦИАЛИЗАЦИЯ ИГРЫ...</div>
     <canvas id="unity-canvas"></canvas>
+
     <script>
-        // МЫ УБРАЛИ buildUrl = "Build". Теперь ищем файлы в корне.
+        const statusText = document.querySelector("#status");
         const config = {
-            loaderUrl: "VK_Build.loader.js",
-            dataUrl: "VK_Build.data.br",
-            frameworkUrl: "VK_Build.framework.js.br",
-            codeUrl: "VK_Build.wasm.br",
+            loaderUrl: "Build.loader.js",
+            dataUrl: "Build.data.br",
+            frameworkUrl: "Build.framework.js.br",
+            codeUrl: "Build.wasm.br",
             streamingAssetsUrl: "StreamingAssets",
             companyName: "DefaultCompany",
             productName: "NeonRogue",
@@ -30,14 +32,19 @@
         const script = document.createElement("script");
         script.src = config.loaderUrl;
         script.onload = () => {
+            statusText.innerHTML = "ЗАГРУЗКА ФАЙЛОВ (0%)...";
             createUnityInstance(canvas, config, (progress) => {
-                console.log("Loading: " + progress);
+                statusText.innerHTML = "ЗАГРУЗКА: " + Math.round(progress * 100) + "%";
             }).then((unityInstance) => {
+                statusText.style.display = "none";
                 console.log("Unity Loaded!");
-                unityInstance.SendMessage('YG2Instance', 'InitSDKComplete');
             }).catch((message) => {
-                alert(message);
+                statusText.innerHTML = "ОШИБКА: " + message;
+                console.error(message);
             });
+        };
+        script.onerror = () => {
+            statusText.innerHTML = "ОШИБКА ЗАГРУЗКИ LOADER.JS";
         };
         document.body.appendChild(script);
     </script>
