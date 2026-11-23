@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/index.umd.js"></script>
+    <style>
+        canvas:focus { outline: none; }
+        html, body { padding: 0; margin: 0; overflow: hidden; height: 100%; background: #000; }
+        #unity-canvas { width: 100%; height: 100%; background: #231F20; }
+    </style>
+</head>
+<body>
+    <canvas id="unity-canvas"></canvas>
+    <script>
+        // МЫ УБРАЛИ buildUrl = "Build". Теперь ищем файлы в корне.
+        const config = {
+            loaderUrl: "VK_Build.loader.js",
+            dataUrl: "VK_Build.data.br",
+            frameworkUrl: "VK_Build.framework.js.br",
+            codeUrl: "VK_Build.wasm.br",
+            streamingAssetsUrl: "StreamingAssets",
+            companyName: "DefaultCompany",
+            productName: "NeonRogue",
+            productVersion: "1.0",
+        };
+
+        const canvas = document.querySelector("#unity-canvas");
+        const script = document.createElement("script");
+        script.src = config.loaderUrl;
+        script.onload = () => {
+            createUnityInstance(canvas, config, (progress) => {
+                console.log("Loading: " + progress);
+            }).then((unityInstance) => {
+                console.log("Unity Loaded!");
+                unityInstance.SendMessage('YG2Instance', 'InitSDKComplete');
+            }).catch((message) => {
+                alert(message);
+            });
+        };
+        document.body.appendChild(script);
+    </script>
+</body>
+</html>
